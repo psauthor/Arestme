@@ -9,6 +9,7 @@ using AutoMapper;
 using DesigningApis.Data.Entities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace DesigningApis.Data
@@ -16,11 +17,11 @@ namespace DesigningApis.Data
   public class SiteRepository : ISiteRepository
   {
     private readonly SiteContext _context;
-    private readonly IHostingEnvironment _environment;
+    private readonly IHostEnvironment _environment;
     private readonly ILogger<SiteRepository> _logger;
 
     public SiteRepository(SiteContext context,
-      IHostingEnvironment environment,
+      IHostEnvironment environment,
       ILogger<SiteRepository> logger)
     {
       _context = context;

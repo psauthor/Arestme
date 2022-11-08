@@ -1,39 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using DesigningApis.Data;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+﻿using DesigningApis.Data;
+using DesigningApis;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using DesigningApis.Services;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Hosting;
 
-namespace DesigningApis
+var builder = WebApplication.CreateBuilder(args);
+
+var services = builder.Services;
+
+services.AddDbContext<SiteContext>()
+       .AddEntityFrameworkInMemoryDatabase();
+
+services.AddScoped<ISiteRepository, SiteRepository>();
+
+services.AddAutoMapper(typeof(Program));
+services.AddHttpCacheHeaders(opt => opt.MaxAge = 600);
+services.AddResponseCaching();
+
+services.AddApiVersioning(cfg =>
 {
-  public class Program
+  cfg.ReportApiVersions = true;
+  cfg.DefaultApiVersion = new ApiVersion(2, 0);
+  cfg.AssumeDefaultVersionWhenUnspecified = true;
+  cfg.ApiVersionReader = ApiVersionReader.Combine(
+    new AcceptHeaderApiVersionReader(),
+    new QueryStringApiVersionReader("v"),
+    new HeaderApiVersionReader("X-Version"));
+});
+
+services.AddControllers(cfg =>
+{
+  cfg.RespectBrowserAcceptHeader = true;
+})
+  .AddXmlSerializerFormatters();
+
+var app = builder.Build();
+
+SeedDb(app);
+
+if (app.Environment.IsDevelopment())
+{
+  app.UseDeveloperExceptionPage();
+}
+
+app.UseCors(cfg =>
+{
+  cfg.AllowAnyHeader();
+  cfg.AllowAnyMethod();
+  cfg.AllowAnyOrigin();
+});
+
+app.UseStaticFiles();
+app.UseResponseCaching();
+app.UseHttpCacheHeaders();
+
+app.MapControllers();
+
+app.Run();
+
+
+void SeedDb(WebApplication app)
+{
+  using (var scope = app.Services.CreateScope())
   {
-    public static void Main(string[] args)
-    {
-      var host = CreateWebHostBuilder(args).Build();
-      SeedDb(host);
-      host.Run();
-    }
+    var repo = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
 
-    private static void SeedDb(IWebHost host)
-    {
-      using (var scope = host.Services.CreateScope())
-      {
-        var repo = scope.ServiceProvider.GetRequiredService<ISiteRepository>();
-
-        repo.BuildDatabaseAsync().Wait();
-        repo.SaveAllAsync().Wait();
-      }
-    }
-
-    public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-        WebHost.CreateDefaultBuilder(args)
-            .UseStartup<Startup>();
+    repo.BuildDatabaseAsync().Wait();
+    repo.SaveAllAsync().Wait();
   }
 }
+
+partial class Program { }
