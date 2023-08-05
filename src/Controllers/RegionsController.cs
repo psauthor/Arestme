@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DesigningApis.Data;
 using DesigningApis.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System;
@@ -13,6 +14,7 @@ namespace DesigningApis.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [EnableCors("Prevent")]
   public class RegionsController : ControllerBase
   {
     private readonly ISiteRepository _repository;
@@ -24,7 +26,7 @@ namespace DesigningApis.Controllers
       IMapper mapper)
     {
       _repository = repository;
-      _linkGenerator = linkGenerator;
+      _linkGenerator = linkGenerator; 
       _mapper = mapper;
     }
 

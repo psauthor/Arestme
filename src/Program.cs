@@ -12,14 +12,28 @@ var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 
-services.AddDbContext<SiteContext>()
-       .AddEntityFrameworkInMemoryDatabase();
+services.AddDbContext<SiteContext>();
 
 services.AddScoped<ISiteRepository, SiteRepository>();
 
 services.AddAutoMapper(typeof(Program));
 services.AddHttpCacheHeaders(opt => opt.MaxAge = 600);
 services.AddResponseCaching();
+
+services.AddCors(setup =>
+{
+  setup.AddDefaultPolicy(cfg =>
+  {
+    cfg.AllowAnyOrigin();
+    cfg.AllowAnyMethod();
+    cfg.AllowAnyHeader();
+  });
+
+  setup.AddPolicy("Prevent", cfg =>
+  {
+    cfg.WithOrigins("https://localhost:5002");
+  });
+});
 
 services.AddApiVersioning(cfg =>
 {

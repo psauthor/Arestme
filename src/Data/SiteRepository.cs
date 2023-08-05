@@ -171,6 +171,9 @@ namespace DesigningApis.Data
       var categories = new List<Category>();
       var regions = new List<Region>();
 
+      var newCatId = 1;
+      var newRegionId = 1;
+
       foreach (var s in doc.Descendants("row"))
       {
         var site = new Site()
@@ -196,7 +199,7 @@ namespace DesigningApis.Data
         {
           category = new Category()
           {
-            Id = categories.Count(),
+            Id = newCatId++,
             Name = catName
           };
           categories.Add(category);
@@ -210,7 +213,7 @@ namespace DesigningApis.Data
         {
           region = new Region()
           {
-            Id = regions.Count(),
+            Id = newRegionId++,
             Name = regionName
           };
           regions.Add(region);
