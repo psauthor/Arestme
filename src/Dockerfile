@@ -4,16 +4,16 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["DesigningApis.csproj", ""]
-RUN dotnet restore "DesigningApis.csproj"
+COPY ["ArestMe.csproj", "."]
+RUN dotnet restore "ArestMe.csproj"
 COPY . .
 WORKDIR "/src/"
-RUN dotnet build "DesigningApis.csproj" -c Release -o /app
+RUN dotnet build "ArestMe.csproj" -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "DesigningApis.csproj" -c Release -o /app
+RUN dotnet publish "ArestMe.csproj" -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-ENTRYPOINT ["dotnet", "DesigningApis.dll"]
+ENTRYPOINT ["dotnet", "ArestMe.dll"]
