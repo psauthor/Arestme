@@ -52,6 +52,8 @@ services.AddControllers(cfg =>
 })
   .AddXmlSerializerFormatters();
 
+services.AddRazorPages();
+
 var app = builder.Build();
 
 SeedDb(app);
@@ -73,7 +75,7 @@ app.UseResponseCaching();
 app.UseHttpCacheHeaders();
 
 app.MapControllers();
-
+app.MapRazorPages();
 app.Run();
 
 
